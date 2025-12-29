@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -19,8 +20,8 @@ func NewUserService(repo *repositories.UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 
-func (s *UserService) SignUp(name, email, password string) (*models.User, error) {
-	exists, err := s.repo.EmailExists(email)
+func (s *UserService) SignUp(ctx context.Context, name, email, password string) (*models.User, error) {
+	exists, err := s.repo.EmailExists(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -39,15 +40,15 @@ func (s *UserService) SignUp(name, email, password string) (*models.User, error)
 		Password: string(hashedPassword),
 	}
 
-	if err := s.repo.Create(user); err != nil {
+	if err := s.repo.Create(ctx, user); err != nil {
 		return nil, err
 	}
 
 	return user, nil
 }
 
-func (s *UserService) Login(email, password string) (string, error) {
-	user, err := s.repo.FindByEmail(email)
+func (s *UserService) Login(ctx context.Context, email, password string) (string, error) {
+	user, err := s.repo.FindByEmail(ctx, email)
 	if err != nil {
 		return "", fmt.Errorf("credenciales inválidas")
 	}
@@ -64,8 +65,8 @@ func (s *UserService) Login(email, password string) (string, error) {
 	return token, nil
 }
 
-func (s *UserService) GetUserByID(id uint) (*models.User, error) {
-	return s.repo.FindByID(id)
+func (s *UserService) GetUserByID(ctx context.Context, id uint) (*models.User, error) {
+	return s.repo.FindByID(ctx, id)
 }
 
 func (s *UserService) generateToken(userID uint) (string, error) {

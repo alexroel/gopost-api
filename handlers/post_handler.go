@@ -34,7 +34,7 @@ func (h *PostHandler) CreatePostHandler(c *server.Context) {
 		return
 	}
 
-	post, err := h.postService.CreatePost(userID, req.Title, req.Content)
+	post, err := h.postService.CreatePost(c.Context(), userID, req.Title, req.Content)
 	if err != nil {
 		RespondError(c.RWriter, NewAppError(err.Error(), http.StatusBadRequest))
 		return
@@ -47,7 +47,7 @@ func (h *PostHandler) CreatePostHandler(c *server.Context) {
 }
 
 func (h *PostHandler) GetPostsHandler(c *server.Context) {
-	posts, err := h.postService.GetAllPosts()
+	posts, err := h.postService.GetAllPosts(c.Context())
 	if err != nil {
 		RespondError(c.RWriter, NewAppError(err.Error(), http.StatusInternalServerError))
 		return
@@ -72,7 +72,7 @@ func (h *PostHandler) GetPostHandler(c *server.Context) {
 		return
 	}
 
-	post, err := h.postService.GetPostByID(uint(id))
+	post, err := h.postService.GetPostByID(c.Context(), uint(id))
 	if err != nil {
 		RespondError(c.RWriter, NewAppError("Post no encontrado", http.StatusNotFound))
 		return
@@ -113,7 +113,7 @@ func (h *PostHandler) UpdatePostHandler(c *server.Context) {
 		return
 	}
 
-	post, err := h.postService.UpdatePost(uint(id), userID, req.Title, req.Content)
+	post, err := h.postService.UpdatePost(c.Context(), uint(id), userID, req.Title, req.Content)
 	if err != nil {
 		RespondError(c.RWriter, NewAppError(err.Error(), http.StatusBadRequest))
 		return
@@ -145,7 +145,7 @@ func (h *PostHandler) DeletePostHandler(c *server.Context) {
 		return
 	}
 
-	if err := h.postService.DeletePost(uint(id), userID); err != nil {
+	if err := h.postService.DeletePost(c.Context(), uint(id), userID); err != nil {
 		RespondError(c.RWriter, NewAppError(err.Error(), http.StatusBadRequest))
 		return
 	}
@@ -162,7 +162,7 @@ func (h *PostHandler) GetPostMeHandler(c *server.Context) {
 		return
 	}
 
-	posts, err := h.postService.GetPostsByUserID(userID)
+	posts, err := h.postService.GetPostsByUserID(c.Context(), userID)
 	if err != nil {
 		RespondError(c.RWriter, NewAppError(err.Error(), http.StatusInternalServerError))
 		return

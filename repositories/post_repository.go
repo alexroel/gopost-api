@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -15,9 +16,9 @@ func NewPostRepository(db *sql.DB) *PostRepository {
 	return &PostRepository{db: db}
 }
 
-func (r *PostRepository) Create(post *models.Post) error {
+func (r *PostRepository) Create(ctx context.Context, post *models.Post) error {
 	query := "INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)"
-	result, err := r.db.Exec(query, post.UserID, post.Title, post.Content)
+	result, err := r.db.ExecContext(ctx, query, post.UserID, post.Title, post.Content)
 	if err != nil {
 		return fmt.Errorf("error al crear post: %w", err)
 	}
@@ -31,9 +32,9 @@ func (r *PostRepository) Create(post *models.Post) error {
 	return nil
 }
 
-func (r *PostRepository) FindAll() ([]models.Post, error) {
+func (r *PostRepository) FindAll(ctx context.Context) ([]models.Post, error) {
 	query := "SELECT id, user_id, title, content, created_at, updated_at FROM posts ORDER BY created_at DESC"
-	rows, err := r.db.Query(query)
+	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener posts: %w", err)
 	}
@@ -51,11 +52,11 @@ func (r *PostRepository) FindAll() ([]models.Post, error) {
 	return posts, nil
 }
 
-func (r *PostRepository) FindByID(id uint) (*models.Post, error) {
+func (r *PostRepository) FindByID(ctx context.Context, id uint) (*models.Post, error) {
 	post := &models.Post{}
 	query := "SELECT id, user_id, title, content, created_at, updated_at FROM posts WHERE id = ?"
 	
-	err := r.db.QueryRow(query, id).Scan(&post.ID, &post.UserID, &post.Title, &post.Content, &post.CreatedAt, &post.UpdatedAt)
+	err := r.db.QueryRowContext(ctx, query, id).Scan(&post.ID, &post.UserID, &post.Title, &post.Content, &post.CreatedAt, &post.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("post no encontrado")
@@ -66,9 +67,9 @@ func (r *PostRepository) FindByID(id uint) (*models.Post, error) {
 	return post, nil
 }
 
-func (r *PostRepository) FindByUserID(userID uint) ([]models.Post, error) {
+func (r *PostRepository) FindByUserID(ctx context.Context, userID uint) ([]models.Post, error) {
 	query := "SELECT id, user_id, title, content, created_at, updated_at FROM posts WHERE user_id = ? ORDER BY created_at DESC"
-	rows, err := r.db.Query(query, userID)
+	rows, err := r.db.QueryContext(ctx, query, userID)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener posts del usuario: %w", err)
 	}
@@ -86,9 +87,9 @@ func (r *PostRepository) FindByUserID(userID uint) ([]models.Post, error) {
 	return posts, nil
 }
 
-func (r *PostRepository) Update(post *models.Post) error {
+func (r *PostRepository) Update(ctx context.Context, post *models.Post) error {
 	query := "UPDATE posts SET title = ?, content = ? WHERE id = ?"
-	result, err := r.db.Exec(query, post.Title, post.Content, post.ID)
+	result, err := r.db.ExecContext(ctx, query, post.Title, post.Content, post.ID)
 	if err != nil {
 		return fmt.Errorf("error al actualizar post: %w", err)
 	}
@@ -105,9 +106,9 @@ func (r *PostRepository) Update(post *models.Post) error {
 	return nil
 }
 
-func (r *PostRepository) Delete(id uint) error {
+func (r *PostRepository) Delete(ctx context.Context, id uint) error {
 	query := "DELETE FROM posts WHERE id = ?"
-	result, err := r.db.Exec(query, id)
+	result, err := r.db.ExecContext(ctx, query, id)
 	if err != nil {
 		return fmt.Errorf("error al eliminar post: %w", err)
 	}

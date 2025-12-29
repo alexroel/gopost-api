@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 )
@@ -8,6 +9,7 @@ import (
 type Context struct {
 	RWriter http.ResponseWriter
 	Request *http.Request
+	Ctx     context.Context
 	userID  uint
 }
 
@@ -39,4 +41,19 @@ func (c *Context) SetUserID(id uint) {
 // GetUserID obtiene el ID del usuario del contexto
 func (c *Context) GetUserID() uint {
 	return c.userID
+}
+
+// Context retorna el context.Context subyacente
+func (c *Context) Context() context.Context {
+	return c.Ctx
+}
+
+// WithValue agrega un valor al contexto
+func (c *Context) WithValue(key, val interface{}) {
+	c.Ctx = context.WithValue(c.Ctx, key, val)
+}
+
+// Value obtiene un valor del contexto
+func (c *Context) Value(key interface{}) interface{} {
+	return c.Ctx.Value(key)
 }

@@ -32,7 +32,7 @@ func (h *UserHandler) SignUpHandler(c *server.Context) {
 		return
 	}
 
-	user, err := h.userService.SignUp(req.Name, req.Email, req.Password)
+	user, err := h.userService.SignUp(c.Context(), req.Name, req.Email, req.Password)
 	if err != nil {
 		RespondError(c.RWriter, NewAppError(err.Error(), http.StatusBadRequest))
 		return
@@ -64,7 +64,7 @@ func (h *UserHandler) LoginHandler(c *server.Context) {
 		return
 	}
 
-	token, err := h.userService.Login(req.Email, req.Password)
+	token, err := h.userService.Login(c.Context(), req.Email, req.Password)
 	if err != nil {
 		RespondError(c.RWriter, NewAppError(err.Error(), http.StatusUnauthorized))
 		return
@@ -83,7 +83,7 @@ func (h *UserHandler) MeHandler(c *server.Context) {
 		return
 	}
 
-	user, err := h.userService.GetUserByID(userID)
+	user, err := h.userService.GetUserByID(c.Context(), userID)
 	if err != nil {
 		RespondError(c.RWriter, NewAppError("Usuario no encontrado", http.StatusNotFound))
 		return

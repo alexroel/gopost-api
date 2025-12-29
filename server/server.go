@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 type App struct {
@@ -23,7 +24,17 @@ func (a *App) RunServer(addr string) error {
 	// Mostrar el banner antes de iniciar el servidor
 	a.printBanner(addr)
 	
-	return http.ListenAndServe(addr, a.mux)
+	// Configurar servidor con timeouts
+	srv := &http.Server{
+		Addr:           addr,
+		Handler:        a.mux,
+		ReadTimeout:    15 * time.Second,
+		WriteTimeout:   15 * time.Second,
+		IdleTimeout:    60 * time.Second,
+		MaxHeaderBytes: 1 << 20, // 1 MB
+	}
+	
+	return srv.ListenAndServe()
 }
 
 func (a *App) printBanner(addr string) {

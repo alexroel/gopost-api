@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -15,9 +16,9 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
-func (r *UserRepository) Create(user *models.User) error {
+func (r *UserRepository) Create(ctx context.Context, user *models.User) error {
 	query := "INSERT INTO users (name, email, password) VALUES (?, ?, ?)"
-	result, err := r.db.Exec(query, user.Name, user.Email, user.Password)
+	result, err := r.db.ExecContext(ctx, query, user.Name, user.Email, user.Password)
 	if err != nil {
 		return fmt.Errorf("error al crear usuario: %w", err)
 	}
@@ -31,11 +32,11 @@ func (r *UserRepository) Create(user *models.User) error {
 	return nil
 }
 
-func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
+func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	user := &models.User{}
 	query := "SELECT id, name, email, password FROM users WHERE email = ?"
 	
-	err := r.db.QueryRow(query, email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+	err := r.db.QueryRowContext(ctx, query, email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("usuario no encontrado")
@@ -46,11 +47,11 @@ func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
 	return user, nil
 }
 
-func (r *UserRepository) FindByID(id uint) (*models.User, error) {
+func (r *UserRepository) FindByID(ctx context.Context, id uint) (*models.User, error) {
 	user := &models.User{}
 	query := "SELECT id, name, email FROM users WHERE id = ?"
 	
-	err := r.db.QueryRow(query, id).Scan(&user.ID, &user.Name, &user.Email)
+	err := r.db.QueryRowContext(ctx, query, id).Scan(&user.ID, &user.Name, &user.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("usuario no encontrado")
@@ -61,11 +62,11 @@ func (r *UserRepository) FindByID(id uint) (*models.User, error) {
 	return user, nil
 }
 
-func (r *UserRepository) EmailExists(email string) (bool, error) {
+func (r *UserRepository) EmailExists(ctx context.Context, email string) (bool, error) {
 	var count int
 	query := "SELECT COUNT(*) FROM users WHERE email = ?"
 	
-	err := r.db.QueryRow(query, email).Scan(&count)
+	err := r.db.QueryRowContext(ctx, query, email).Scan(&count)
 	if err != nil {
 		return false, fmt.Errorf("error al verificar email: %w", err)
 	}

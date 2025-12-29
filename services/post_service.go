@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/gopost-api/models"
@@ -15,7 +16,7 @@ func NewPostService(repo *repositories.PostRepository) *PostService {
 	return &PostService{repo: repo}
 }
 
-func (s *PostService) CreatePost(userID uint, title, content string) (*models.Post, error) {
+func (s *PostService) CreatePost(ctx context.Context, userID uint, title, content string) (*models.Post, error) {
 	if title == "" {
 		return nil, fmt.Errorf("el título es requerido")
 	}
@@ -29,27 +30,27 @@ func (s *PostService) CreatePost(userID uint, title, content string) (*models.Po
 		Content: content,
 	}
 
-	if err := s.repo.Create(post); err != nil {
+	if err := s.repo.Create(ctx, post); err != nil {
 		return nil, err
 	}
 
 	return post, nil
 }
 
-func (s *PostService) GetAllPosts() ([]models.Post, error) {
-	return s.repo.FindAll()
+func (s *PostService) GetAllPosts(ctx context.Context) ([]models.Post, error) {
+	return s.repo.FindAll(ctx)
 }
 
-func (s *PostService) GetPostByID(id uint) (*models.Post, error) {
-	return s.repo.FindByID(id)
+func (s *PostService) GetPostByID(ctx context.Context, id uint) (*models.Post, error) {
+	return s.repo.FindByID(ctx, id)
 }
 
-func (s *PostService) GetPostsByUserID(userID uint) ([]models.Post, error) {
-	return s.repo.FindByUserID(userID)
+func (s *PostService) GetPostsByUserID(ctx context.Context, userID uint) ([]models.Post, error) {
+	return s.repo.FindByUserID(ctx, userID)
 }
 
-func (s *PostService) UpdatePost(postID, userID uint, title, content string) (*models.Post, error) {
-	post, err := s.repo.FindByID(postID)
+func (s *PostService) UpdatePost(ctx context.Context, postID, userID uint, title, content string) (*models.Post, error) {
+	post, err := s.repo.FindByID(ctx, postID)
 	if err != nil {
 		return nil, err
 	}
@@ -68,15 +69,15 @@ func (s *PostService) UpdatePost(postID, userID uint, title, content string) (*m
 	post.Title = title
 	post.Content = content
 
-	if err := s.repo.Update(post); err != nil {
+	if err := s.repo.Update(ctx, post); err != nil {
 		return nil, err
 	}
 
 	return post, nil
 }
 
-func (s *PostService) DeletePost(postID, userID uint) error {
-	post, err := s.repo.FindByID(postID)
+func (s *PostService) DeletePost(ctx context.Context, postID, userID uint) error {
+	post, err := s.repo.FindByID(ctx, postID)
 	if err != nil {
 		return err
 	}
@@ -85,5 +86,5 @@ func (s *PostService) DeletePost(postID, userID uint) error {
 		return fmt.Errorf("no tienes permiso para eliminar este post")
 	}
 
-	return s.repo.Delete(postID)
+	return s.repo.Delete(ctx, postID)
 }

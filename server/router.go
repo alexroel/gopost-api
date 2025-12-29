@@ -9,6 +9,7 @@ func (a *App) Get(path string, handler HandleFunc) {
 		handler(&Context{
 			RWriter: w,
 			Request: r,
+			Ctx:     r.Context(),
 		})
 	})
 	a.handlerCount++
@@ -19,6 +20,7 @@ func (a *App) Post(path string, handler HandleFunc) {
 		handler(&Context{
 			RWriter: w,
 			Request: r,
+			Ctx:     r.Context(),
 		})
 	})
 	a.handlerCount++
@@ -29,6 +31,7 @@ func (a *App) Put(path string, handler HandleFunc) {
 		handler(&Context{
 			RWriter: w,
 			Request: r,
+			Ctx:     r.Context(),
 		})
 	})
 	a.handlerCount++
@@ -39,6 +42,7 @@ func (a *App) Delete(path string, handler HandleFunc) {
 		handler(&Context{
 			RWriter: w,
 			Request: r,
+			Ctx:     r.Context(),
 		})
 	})
 	a.handlerCount++

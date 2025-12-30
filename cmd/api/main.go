@@ -12,9 +12,9 @@ import (
 	"github.com/gopost-api/services"
 )
 
-func health(c *server.Context)  {
+func health(c *server.Context) {
 	c.JSON(200, map[string]interface{}{
-		"status": "ok",
+		"status":  "ok",
 		"message": "El servicio está funcionando correctamente",
 	})
 }
@@ -65,7 +65,7 @@ func main() {
 	app.Get("/posts/me", middleware.AuthMiddleware(postHandler.GetPostMeHandler))
 
 	// Iniciar servidor
-	if err := app.RunServer(cfg.Port); err != nil {
+	if err := app.RunServer(); err != nil {
 		log.Fatal("Error al iniciar el servidor:", err)
 	}
 }

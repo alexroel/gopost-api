@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/gopost-api/config"
 )
 
 type App struct {
+	config       config.Config
 	mux          *http.ServeMux
 	handlerCount int
 }
@@ -18,13 +21,13 @@ func New() *App {
 	}
 }
 
-func (a *App) RunServer(addr string) error {
+func (a *App) RunServer() error {
 	// Mostrar el banner antes de iniciar el servidor
-	a.printBanner(addr)
+	a.printBanner(a.config.Port)
 
 	// Configurar servidor con timeouts
 	srv := &http.Server{
-		Addr:    addr,
+		Addr:    a.config.Port,
 		Handler: a.mux,
 	}
 
@@ -33,12 +36,13 @@ func (a *App) RunServer(addr string) error {
 
 func (a *App) printBanner(addr string) {
 	urlBase := fmt.Sprintf("http://localhost%s", addr)
+	countHandlers := fmt.Sprintf("Handlers .........: %d", a.handlerCount)
 
 	fmt.Println("┌───────────────────────────────────────────────────┐")
 	fmt.Printf("│%s│\n", centerText("MyServer v1.0.0", 51))
 	fmt.Printf("│%s│\n", centerText(urlBase, 51))
 	fmt.Printf("│%s│\n", strings.Repeat(" ", 51))
-	fmt.Printf("│ Handlers .........: %d|\n", a.handlerCount)
+	fmt.Printf("│%s|\n", centerText(countHandlers, 51))
 	fmt.Println("└───────────────────────────────────────────────────┘")
 }
 
